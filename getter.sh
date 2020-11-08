@@ -337,35 +337,54 @@ title1="GCP-SEC-AB02"
 title2="TCP 전달을 위한 Cloud IAP 사용"
 
 echo $command
+  echo -e "TFCHK:    ${TFCHK}"
 
+  if [[ -n $TFCHK  ]]; then
+      if [[ $TFCHK =~ ENABLED ]]; then
+          check="[양호]"
+          resource=$command
+          text="-"
+          echo $title1,$title2
+          echo "리소스: - "
+          echo -n -e "\033[34m[양호]\033[0m"
+          tot=$(( $(( ${tot}+1 )) ))
+          suc_cnt=$(( $(( ${suc_cnt}+1 )) ))
+          echo
 
+      elif [[ $TFCHK =~ DESTROYED ]]; then
+          check="[취약]"
+          resource="-"
+          text="리소스 없음"
+          tot=$(( $(( ${tot}+1 )) ))
+          fail_cnt=$(( ${fail_cnt}+1 ))
+          export title1
+          export title2
+          export check
+          export resource
+          export text
+          export tot
+          export fail_cnt
+          echo -n -e "\033[33m[취약]\033[0m"
+          sh err_chk.sh
+      fi
 
-if [[ -n $command  ]]; then
-        check="[양호]"
-        resource=$command
-        text="-"
-        echo $title1,$title2
-        echo "리소스: "$command
-        echo -n -e "\033[34m[양호]\033[0m"
-        tot=$(( $(( ${tot}+1 )) ))
-        suc_cnt=$(( $(( ${suc_cnt}+1 )) ))
-        echo
-    elif [[ -z $command ]]; then
-        check="[취약]"
-        resource="-"
-        text="리소스 없음"
-        tot=$(( $(( ${tot}+1 )) ))
-        fail_cnt=$(( ${fail_cnt}+1 ))
-        export title1
-        export title2
-        export check
-        export resource
-        export text
-        export tot
-        export fail_cnt
-        echo -n -e "\033[33m[취약]\033[0m"
-        sh err_chk.sh
-fi
+  elif [[ -z $TFCHK ]]; then
+      check="[취약]"
+      resource="-"
+      text="리소스 없음"
+      tot=$(( $(( ${tot}+1 )) ))
+      fail_cnt=$(( ${fail_cnt}+1 ))
+      export title1
+      export title2
+      export check
+      export resource
+      export text
+      export tot
+      export fail_cnt
+      echo -n -e "\033[33m[취약]\033[0m"
+      sh err_chk.sh
+  fi
+done
 }
 
 function AD01(){
@@ -444,7 +463,7 @@ local resource=$4
 local text=$5
 
 
-command=$(jq '.[].asset.resourceProperties.primary |select(.) |fromjson |.state' ${filename})
+command=$(jq '.[].asset.resourceProperties.primary |select(.) |fromjson |.state' {$filename})
 title1="GCP-SEC-AD02"
 title2="키 버전 폐기"
 
@@ -504,45 +523,6 @@ echo $command
 done
 }
 
-
-function AD03(){
-
-local title1=$1
-local title2=$2
-local check=$3
-local resource=$4
-local text=$5
-title1="GCP-SEC-AD03"
-title2="키 순환 설정"
-
-if [[ $(jq '.[].asset.resourceProperties|select(.rotationPeriod)' ${filename}) -gt 0 ]]; then
-        check="[양호]"
-        text="-"
-        echo $title1,$title2,$check
-        echo "키 순환 설정 :"`.[].asset.resourceProperties|select(.rotationPeriod)`
-        echo -n -e "\033[34m[양호]\033[0m"
-        tot=$(( $(( ${tot}+1 )) ))
-        #suc_cnt=$(( ${suc_cnt}+1 ))
-        echo
-
-
-    elif [[ -z $(jq '.[].asset.resourceProperties|select(.rotationPeriod)' ${filename}) ]]; then
-        check="[취약]"
-        text="리소스 없음"
-        tot=$(( $(( ${tot}+1 )) ))
-        fail_cnt=$(( ${fail_cnt}+1 ))
-        echo
-        export title1
-        export title2
-        export check
-        export resource
-        export text
-        export tot
-        export fail_cnt
-        echo -n -e "\033[33m[취약]\033[0m"
-        sh err_chk.sh
-fi
-}
 
 function AD04(){
 
@@ -968,51 +948,51 @@ elif [[ -z $command ]]; then
 fi
 }
 
-
-function AF01(){
-
-local title1=$1
-local title2=$2
-local check=$3
-local resource=$4
-local text=$5
-
-title1="GCP-SVC-AE07"
-title2="최소한의 리소스 연결"
-command=$(gcloud beta compute security-policies list --format="value(NAME)")
-
-
-for armor in $command
-do
-  echo -e "armor:    ${armor}"
-done
-
-if [[ -n $command ]]; then
-        check="[양호]"
-        resource="방화벽 설정 있음"
-        echo $title1,$title2,$resource
-        echo -n -e "\033[34m[양호]\033[0m"
-        tot=$(( $(( ${tot}+1 )) ))
-        suc_cnt=$(( $(( ${suc_cnt}+1 )) ))
-        echo
-
-elif [[ -z $command ]]; then
-        check="[취약]"
-        resource="-"
-        text="리소스 없음"
-        tot=$(( $(( ${tot}+1 )) ))
-        fail_cnt=$(( ${fail_cnt}+1 ))
-        export title1
-        export title2
-        export check
-        export resource
-        export text
-        export tot
-        export fail_cnt
-        echo -n -e "\033[33m[취약]\033[0m"
-        sh err_chk.sh
-fi
-}
+#
+# function AE07(){
+#
+# local title1=$1
+# local title2=$2
+# local check=$3
+# local resource=$4
+# local text=$5
+#
+# title1="GCP-SVC-AF01"
+# title2="최소한의 리소스 연결"
+# command=$(gcloud beta compute security-policies list --format="value(NAME)")
+#
+#
+# for armor in $command
+# do
+#   echo -e "armor:    ${armor}"
+# done
+#
+# if [[ -n $command ]]; then
+#         check="[양호]"
+#         resource="방화벽 설정 있음"
+#         echo $title1,$title2,$resource
+#         echo -n -e "\033[34m[양호]\033[0m"
+#         tot=$(( $(( ${tot}+1 )) ))
+#         suc_cnt=$(( $(( ${suc_cnt}+1 )) ))
+#         echo
+#
+# elif [[ -z $command ]]; then
+#         check="[취약]"
+#         resource="-"
+#         text="리소스 없음"
+#         tot=$(( $(( ${tot}+1 )) ))
+#         fail_cnt=$(( ${fail_cnt}+1 ))
+#         export title1
+#         export title2
+#         export check
+#         export resource
+#         export text
+#         export tot
+#         export fail_cnt
+#         echo -n -e "\033[33m[취약]\033[0m"
+#         sh err_chk.sh
+# fi
+# }
 
 function AG01(){
 
@@ -4267,5 +4247,5 @@ cmds=('AA01' 'AA02' 'AA03' 'AA04' 'AA05' 'AA06' 'AB02' 'AD01' 'AD02' 'AD04' 'AD0
 'BG06' 'BG07' 'BG08' 'BG10' 'BG11' 'BH06' 'BH07' 'BH08' 'BU05' 'BV05' 'BY05' 'BZ05' 'CA05' 'CB06' 'CB07' 'CB09' 'CD05' 'CF06' 'CF07' 'CF08' 'CF09'
 'CI06' 'CL05' 'CP06' 'CR06' 'CT05' 'CU05' 'DE05' 'DE06' 'DM05' 'DN06')
 for cmd in "${cmds[@]}"; do
-    sh $cmd
+    $cmd
 done
