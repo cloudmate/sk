@@ -1394,52 +1394,52 @@ ROLES=("roles/owner" "roles/accessapproval.approver" "roles/accesscontextmanager
  "roles/vpcaccess.admin")
 
 
-for i in ${!ROLES[@]};
-do
-  ROLE=${ROLES[$i]}
+ for i in ${!ROLES[@]};
+ do
+   ROLE=${ROLES[$i]}
 
-  FILTER=".bindings[] | select (.role==\"${ROLE}\") | .members[] | select (. | startswith(\"user:\")) | ltrimstr(\"user:\")"
-  command=$(gcloud projects get-iam-policy ${PROJECT} --format=json | jq "${FILTER}")
-  echo $command
-  mapfile -t tot< <(echo $command | wc -w)
-  echo "설정된 사용자 수 : "$tot
+   FILTER=".bindings[] | select (.role==\"${ROLE}\") | .members[] | select (. | startswith(\"user:\")) | ltrimstr(\"user:\")"
+   command=$(gcloud projects get-iam-policy ${PROJECT} --format=json | jq "${FILTER}")
+   echo $command
+   mapfile -t tot< <(echo $command | wc -w)
+   echo "설정된 사용자 수 : "$tot
 
-if  [[ $tot == 1 ]]; then
-  check="[양호]"
-  text=${ROLE}
-  echo $title1,$title2,$text,$check
-  echo -n -e "\033[34m[양호]\033[0m"
-  tot=$(( $(( ${tot}+1 )) ))
-  suc_cnt=$(( $(( ${suc_cnt}+1 )) ))
-  echo $title, $title2, $check
-  echo
+ if  [[ $tot == 1 ]]; then
+   check="[양호]"
+   text=${ROLE}
+   echo $title1,$title2,$text,$check
+   echo -n -e "\033[34m[양호]\033[0m"
+   tot=$(( $(( ${tot}+1 )) ))
+   suc_cnt=$(( $(( ${suc_cnt}+1 )) ))
+   echo $title, $title2, $check
+   echo
 
-elif [[ $tot -gt 1 ]]; then
-  check="[취약]"
-  resource=${ROLE}
-  text="관리자 권한이 1명 이상"
-  tot=$(( $(( ${tot}+1 )) ))
-  fail_cnt=$(( ${fail_cnt}+1 ))
-  export title1
-  export title2
-  export check
-  export resource
-  export text
-  export tot
-  export fail_cnt
-  echo $title, $title2, $check, $text, $resource
-  echo -n -e "\033[33m[취약]\033[0m"
-  sh err_chk.sh
+ elif [[ $tot -gt 1 ]]; then
+   check="[취약]"
+   resource=${ROLE}
+   text="관리자 권한이 1명 이상"
+   tot=$(( $(( ${tot}+1 )) ))
+   fail_cnt=$(( ${fail_cnt}+1 ))
+   export title1
+   export title2
+   export check
+   export resource
+   export text
+   export tot
+   export fail_cnt
+   echo $title, $title2, $check, $text, $resource
+   echo -n -e "\033[33m[취약]\033[0m"
+   sh err_chk.sh
 
-elif  [[ $tot == 0 ]]; then
-  check="[정보]"
-  text=${ROLE}
-  echo $title1,$title2,$text,$check
-  tot=$(( $(( ${tot}+1 )) ))
-  echo
-fi
-done
-}
+ elif  [[ $tot == 0 ]]; then
+   check="[정보]"
+   text=${ROLE}
+   echo $title1,$title2,$text,$check
+   tot=$(( $(( ${tot}+1 )) ))
+   echo
+ fi
+ done
+ }
 
 
 function AQ03(){
