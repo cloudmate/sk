@@ -1383,7 +1383,7 @@ ROLES=("roles/owner" "roles/accessapproval.approver" "roles/accesscontextmanager
    FILTER=".bindings[] | select (.role==\"${ROLE}\") | .members[] | select (. | startswith(\"user:\")) | ltrimstr(\"user:\")"
    command=$(gcloud projects get-iam-policy ${PROJECT} --format=json | jq "${FILTER}")
    echo $command
-   mapfile -t tot< <(echo $command | wc -w)
+   tot=(echo $command | wc -w)
    echo "설정된 사용자 수 : "$tot
 
  if  [[ $tot == 1 ]]; then
@@ -1989,7 +1989,7 @@ do
   ROLE=${ROLES[$i]}
   FILTER=".bindings[] | select (.role==\"${ROLE}\") | .members[] | select (. | startswith(\"user:\")) | ltrimstr(\"user:\")"
   command=$(gcloud projects get-iam-policy ${PROJECT} --format=json | jq "${FILTER}")
-  mapfile -t tot< <(echo $command | wc -w)
+  tot=(echo $command | wc -w)
   let tot_cnt+=$tot
 done
 
