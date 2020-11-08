@@ -1970,56 +1970,56 @@ fi
 }
 
 
-function AZ07(){
-
-local title1=$1
-local title2=$2
-local check=$3
-local resource=$4
-local text=$5
-
-title1="GCP-SVC-AZ07"
-title2="OS 로그인"
-
-ROLES=("roles/owner" "roles/compute.osLogin" "roles/compute.osAdminLogin" "roles/admin" "roles/owner" "roles/compute.instanceAdmin")
-PROJECT=$(gcloud config get-value project)
-
-for i in ${!ROLES[@]};
-do
-  ROLE=${ROLES[$i]}
-  FILTER=".bindings[] | select (.role==\"${ROLE}\") | .members[] | select (. | startswith(\"user:\")) | ltrimstr(\"user:\")"
-  command=$(gcloud projects get-iam-policy ${PROJECT} --format=json | jq "${FILTER}")
-  mapfile -t tot< <(echo $command | wc -w)
-  let tot_cnt+=$tot
-done
-
-  if  [[ $tot_cnt > 0 ]]; then
-    check="[양호]"
-    echo $title1,$title2,$check
-    echo -n -e "\033[34m[양호]\033[0m"
-    tot=$(( $(( ${tot}+1 )) ))
-    suc_cnt=$(( $(( ${suc_cnt}+1 )) ))
-    echo $title, $title2, $check
-    echo
-
-  elif [[ -z $command || $command -eq 0 ]]; then
-    check="[취약]"
-    resource="-"
-    text="리소스 없음"
-    tot=$(( $(( ${tot}+1 )) ))
-    fail_cnt=$(( ${fail_cnt}+1 ))
-    export title1
-    export title2
-    export check
-    export resource
-    export text
-    export tot
-    export fail_cnt
-    echo $title, $title2, $check, $text
-    echo -n -e "\033[33m[취약]\033[0m"
-    sh err_chk.sh
-    fi
-}
+# function AZ07(){
+#
+# local title1=$1
+# local title2=$2
+# local check=$3
+# local resource=$4
+# local text=$5
+#
+# title1="GCP-SVC-AZ07"
+# title2="OS 로그인"
+#
+# ROLES=("roles/owner" "roles/compute.osLogin" "roles/compute.osAdminLogin" "roles/admin" "roles/owner" "roles/compute.instanceAdmin")
+# PROJECT=$(gcloud config get-value project)
+#
+# for i in ${!ROLES[@]};
+# do
+#   ROLE=${ROLES[$i]}
+#   FILTER=".bindings[] | select (.role==\"${ROLE}\") | .members[] | select (. | startswith(\"user:\")) | ltrimstr(\"user:\")"
+#   command=$(gcloud projects get-iam-policy ${PROJECT} --format=json | jq "${FILTER}")
+#   mapfile -t tot< <(echo $command | wc -w)
+#   let tot_cnt+=$tot
+# done
+#
+#   if  [[ $tot_cnt > 0 ]]; then
+#     check="[양호]"
+#     echo $title1,$title2,$check
+#     echo -n -e "\033[34m[양호]\033[0m"
+#     tot=$(( $(( ${tot}+1 )) ))
+#     suc_cnt=$(( $(( ${suc_cnt}+1 )) ))
+#     echo $title, $title2, $check
+#     echo
+#
+#   elif [[ -z $command || $command -eq 0 ]]; then
+#     check="[취약]"
+#     resource="-"
+#     text="리소스 없음"
+#     tot=$(( $(( ${tot}+1 )) ))
+#     fail_cnt=$(( ${fail_cnt}+1 ))
+#     export title1
+#     export title2
+#     export check
+#     export resource
+#     export text
+#     export tot
+#     export fail_cnt
+#     echo $title, $title2, $check, $text
+#     echo -n -e "\033[33m[취약]\033[0m"
+#     sh err_chk.sh
+#     fi
+# }
 
 function AZ09(){
 
@@ -4244,9 +4244,9 @@ fi
 }
 
 #'AQ01'
-
+#'AZ07'
 cmds=('AA01' 'AA02' 'AA03' 'AA04' 'AA05' 'AA06' 'AB02' 'AD01' 'AD02' 'AD04' 'AD05' 'AE01' 'AE02' 'AE03' 'AE04' 'AE05' 'AE06' 'AE07' 'AF01' 'AG01'
-'AH01' 'AI01' 'AJ02' 'AK01' 'AM02' 'AP01' 'AQ03' 'AQ05' 'AW05' 'AX01' 'AZ06' 'AZ07' 'AZ09' 'AZ10' 'AZ11' 'AZ12' 'AZ13' 'BC05' 'BD07' 'BE06'
+'AH01' 'AI01' 'AJ02' 'AK01' 'AM02' 'AP01' 'AQ03' 'AQ05' 'AW05' 'AX01' 'AZ06' 'AZ09' 'AZ10' 'AZ11' 'AZ12' 'AZ13' 'BC05' 'BD07' 'BE06'
 'BG06' 'BG07' 'BG08' 'BG10' 'BG11' 'BH06' 'BH07' 'BH08' 'BU05' 'BV05' 'BY05' 'BZ05' 'CA05' 'CB06' 'CB07' 'CB09' 'CD05' 'CF06' 'CF07' 'CF08' 'CF09'
 'CI06' 'CL05' 'CP06' 'CR06' 'CT05' 'CU05' 'DE05' 'DE06' 'DM05' 'DN06')
 for cmd in "${cmds[@]}"; do
