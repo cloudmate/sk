@@ -4002,6 +4002,48 @@ command=$(gcloud compute regions list --format="value(NAME)")
 done
 }
 
+function CT05(){
+
+local title1=$1
+local title2=$2
+local check=$3
+local resource=$4
+local text=$5
+
+command=$(jq '.[].asset.iamPolicy.policyBlob | fromjson | .bindings[]|.role' {$filename}  2>/dev/null)
+title1="GCP-SVC-CT05"
+title2="태그 템플릿 사용자 역할 부여"
+echo $command
+
+if [ $command | grep "roles/datacatalog.tagTemplateUser" ]; then
+        check="[양호]"
+        resource=$command
+        text="-"
+        echo "템플릿 사용자 : "$command
+        echo $title1,$title2,$check,$resource,$text
+        echo -n -e "\033[34m[양호]\033[0m"
+        tot=$(( $(( ${tot}+1 )) ))
+        suc_cnt=$(( $(( ${suc_cnt}+1 )) ))
+        echo
+
+    elif [[ -z $command ]]; then
+        check="[취약]"
+        resource="-"
+        text="리소스 없음"
+        tot=$(( $(( ${tot}+1 )) ))
+        fail_cnt=$(( ${fail_cnt}+1 ))
+        export title1
+        export title2
+        export check
+        export resource
+        export text
+        export tot
+        export fail_cnt
+        echo -n -e "\033[33m[취약]\033[0m"
+        sh err_chk.sh
+fi
+}
+
 
 function CU05(){
 
