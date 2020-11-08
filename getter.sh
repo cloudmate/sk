@@ -1383,10 +1383,10 @@ ROLES=("roles/owner" "roles/accessapproval.approver" "roles/accesscontextmanager
    FILTER=".bindings[] | select (.role==\"${ROLE}\") | .members[] | select (. | startswith(\"user:\")) | ltrimstr(\"user:\")"
    command=$(gcloud projects get-iam-policy ${PROJECT} --format=json | jq "${FILTER}")
    echo $command
-   tot=(echo $command | wc -w)
-   echo "설정된 사용자 수 : "$tot
+   mapfile -t tot_cnt < <(echo $command | wc -w)
+   echo "설정된 사용자 수 : "$tot_cnt
 
- if  [[ $tot == 1 ]]; then
+ if  [[ $tot_cnt == 1 ]]; then
    check="[양호]"
    text=${ROLE}
    echo $title1,$title2,$text,$check
@@ -1396,7 +1396,7 @@ ROLES=("roles/owner" "roles/accessapproval.approver" "roles/accesscontextmanager
    echo $title, $title2, $check
    echo
 
- elif [[ $tot -gt 1 ]]; then
+ elif [[ $tot_cnt -gt 1 ]]; then
    check="[취약]"
    resource=${ROLE}
    text="관리자 권한이 1명 이상"
@@ -1413,7 +1413,7 @@ ROLES=("roles/owner" "roles/accessapproval.approver" "roles/accesscontextmanager
    echo -n -e "\033[33m[취약]\033[0m"
    sh err_chk.sh
 
- elif  [[ $tot == 0 ]]; then
+ elif  [[ $tot_cnt == 0 ]]; then
    check="[정보]"
    text=${ROLE}
    echo $title1,$title2,$text,$check
@@ -1422,7 +1422,7 @@ ROLES=("roles/owner" "roles/accessapproval.approver" "roles/accesscontextmanager
  fi
  done
  }
-
+ 
 
 function AQ03(){
 
@@ -1989,7 +1989,7 @@ do
   ROLE=${ROLES[$i]}
   FILTER=".bindings[] | select (.role==\"${ROLE}\") | .members[] | select (. | startswith(\"user:\")) | ltrimstr(\"user:\")"
   command=$(gcloud projects get-iam-policy ${PROJECT} --format=json | jq "${FILTER}")
-  tot=(echo $command | wc -w)
+  mapfile -t tot< <(echo $command | wc -w)
   let tot_cnt+=$tot
 done
 
