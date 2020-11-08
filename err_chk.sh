@@ -1,5 +1,5 @@
 alias ls=ls
-CF="GCP_점검결과_$(date +"%H:%M").csv"
+CF="GCP_점검결과_$(date +"%F_%H").csv"
 
 function error(){
     echo $title1,$title2,$check,$resource,$text >> $CF 2>&1
