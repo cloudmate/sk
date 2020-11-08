@@ -465,7 +465,7 @@ local resource=$4
 local text=$5
 
 
-command=$(jq '.[].asset.resourceProperties.primary |select(.) |fromjson |.state' {$filename})
+command=$(jq '.[].asset.resourceProperties.primary |select(.) |fromjson |.state' ${filename})
 title1="GCP-SEC-AD02"
 title2="키 버전 폐기"
 
@@ -796,7 +796,7 @@ local resource=$4
 local text=$5
 
 
-command=$(jq '.[].asset.resourceProperties.rule|select(.)|fromjson |.[]' {$filename})
+command=$(jq '.[].asset.resourceProperties.rule|select(.)|fromjson |.[]' ${filename})
 title1="GCP-SEC-AE05"
 title2="클라우드 보안 정책 모니터링"
 
@@ -1806,14 +1806,14 @@ local text=$5
 title1="GCP-SVC-AQ05"
 title2="KMS 키관리"
 
-command=$(jq '.[].asset.resourceProperties.encryption|select(.)|fromjson|.defaultKmsKeyName|select(.)' {$filename})
+command=$(jq '.[].asset.resourceProperties.encryption|select(.)|fromjson|.defaultKmsKeyName|select(.)' ${filename})
 
 echo $command
 
 if [[ $command != {} ]];
 then
     check="[양호]"
-    resource=$(jq '.[].asset.resourceProperties.encryption|select(.)|fromjson|.defaultKmsKeyName|select(.)' {$filename})
+    resource=$(jq '.[].asset.resourceProperties.encryption|select(.)|fromjson|.defaultKmsKeyName|select(.)' ${filename})
     text="-"
     echo "리소스 : "$resource
     echo $title1,$title2,$check,$resource,$text
@@ -1851,7 +1851,7 @@ local check=$3
 local resource=$4
 local text=$5
 
-command=$(jq '.[].asset.iamPolicy.policyBlob |select(.) |fromjson |.bindings[] | select(.role=="roles/deploymentmanager.typeEditor")' {$filename})
+command=$(jq '.[].asset.iamPolicy.policyBlob |select(.) |fromjson |.bindings[] | select(.role=="roles/deploymentmanager.typeEditor")' ${filename})
 title1="GCP-SVC-AW05"
 title2="사용자 및 API 액세스 제어"
 
@@ -1937,7 +1937,7 @@ local text=$5
 
 title1="GCP-SVC-AZ06"
 title2="볼륨 암호화"
-command=$(jq '.[].asset.resourceProperties.encryption|select(.)|fromjson|.defaultKmsKeyName|select(.)' {$filename})
+command=$(jq '.[].asset.resourceProperties.encryption|select(.)|fromjson|.defaultKmsKeyName|select(.)' ${filename})
 
 echo $command
 
@@ -2138,7 +2138,7 @@ local text=$5
 
 title1="GCP-SVC-AZ11"
 title2="보안 부팅"
-command=$(jq '.[].asset.resourceProperties.shieldedInstanceConfig | select(.!= null) | fromjson |.enableSecureBoot' {$filename})
+command=$(jq '.[].asset.resourceProperties.shieldedInstanceConfig | select(.!= null) | fromjson |.enableSecureBoot' ${filename})
 
   for RETURNS in $command
   do
@@ -2204,7 +2204,7 @@ local text=$5
 
 title1="GCP-SVC-AZ12"
 title2="vTPM 사용"
-command=$(jq '.[].asset.resourceProperties.shieldedInstanceConfig | select(.!= null) | fromjson |.enableVtpm' {$filename})
+command=$(jq '.[].asset.resourceProperties.shieldedInstanceConfig | select(.!= null) | fromjson |.enableVtpm' ${filename})
 
   for RETURNS in $command
   do
@@ -2270,7 +2270,7 @@ local text=$5
 
 title1="GCP-SVC-AZ13"
 title2="무결성 모니터링"
-command=$(jq '.[].asset.resourceProperties.shieldedInstanceConfig | select(.!= null) | fromjson |.enableIntegrityMonitoring' {$filename})
+command=$(jq '.[].asset.resourceProperties.shieldedInstanceConfig | select(.!= null) | fromjson |.enableIntegrityMonitoring' ${filename})
 
   for RETURNS in $command
   do
@@ -2337,7 +2337,7 @@ local text=$5
 
 title1="GCP-SVC-BC05"
 title2="서비스별 ID 사용"
-command=$(jq '.[].asset.iamPolicy.policyBlob |select(.)|fromjson|.bindings[] |select(.role=="roles/run.serviceAgent")' {$filename})
+command=$(jq '.[].asset.iamPolicy.policyBlob |select(.)|fromjson|.bindings[] |select(.role=="roles/run.serviceAgent")' ${filename})
 
 echo $command
 
@@ -2378,7 +2378,7 @@ local check=$3
 local resource=$4
 local text=$5
 
-command=$(jq '.[].asset.iamPolicy.policyBlob|select(.)|fromjson.auditConfigs |select(.) |.[] |select(.service=="cloudfunctions.googleapis.com")' {$filename})
+command=$(jq '.[].asset.iamPolicy.policyBlob|select(.)|fromjson.auditConfigs |select(.) |.[] |select(.service=="cloudfunctions.googleapis.com")' ${filename})
 title1="GCP-SVC-BD07"
 title2="데이터 엑세스 감사로그"
 
@@ -2639,7 +2639,7 @@ local text=$5
 
 title1="GCP-SVC-BG08"
 title2="PodSecurityPolicy"
-command=$(jq '.[].asset.resourceProperties.metadata|select(.)|fromjson.annotations.EnablePodSecurityPolicy|select(.)' {$filename})
+command=$(jq '.[].asset.resourceProperties.metadata|select(.)|fromjson.annotations.EnablePodSecurityPolicy|select(.)' ${filename})
 
 
   for RETURNS in $command
@@ -2703,7 +2703,7 @@ local check=$3
 local resource=$4
 local text=$5
 
-command=$(jq '.[].asset.resourceProperties.nodePools|select(.)|fromjson|.[]|.config|.metadata | ."disable-legacy-endpoints"' {$filename})
+command=$(jq '.[].asset.resourceProperties.nodePools|select(.)|fromjson|.[]|.config|.metadata | ."disable-legacy-endpoints"' ${filename})
 title1="GCP-SVC-BG10"
 title2="클러스터 메타데이터 보호"
 
@@ -2893,7 +2893,7 @@ local check=$3
 local resource=$4
 local text=$5
 
-command=$(jq '.[].asset.resourceProperties.iamConfiguration|select(.)|fromjson |.uniformBucketLevelAccess' {$filename})
+command=$(jq '.[].asset.resourceProperties.iamConfiguration|select(.)|fromjson |.uniformBucketLevelAccess' ${filename})
 title1="GCP-SVC-BH07"
 title2="액세스 제어 구성"
 
@@ -2980,7 +2980,7 @@ local text=$5
 
 title1="GCP-SVC-BU05"
 title2="서명된 URL 키 구성"
-command=$(jq '.[].asset.resourceProperties.cdnPolicy|select(.)|fromjson|.signedUrlKeyNames[]' {$filename} 2>/dev/null)
+command=$(jq '.[].asset.resourceProperties.cdnPolicy|select(.)|fromjson|.signedUrlKeyNames[]' ${filename} 2>/dev/null)
 
 if [[ -n $command ]]; then
     check="[양호]"
@@ -3020,7 +3020,7 @@ local check=$3
 local resource=$4
 local text=$5
 
-command=$(jq '.[].asset.resourceProperties.dnssecConfig |select(.) |fromjson|.state' {$filename})
+command=$(jq '.[].asset.resourceProperties.dnssecConfig |select(.) |fromjson|.state' ${filename})
 title1="GCP-SVC-BV05"
 title2="DNSSEC 설정"
 
@@ -4010,7 +4010,7 @@ local check=$3
 local resource=$4
 local text=$5
 
-command=$(jq '.[].asset.iamPolicy.policyBlob | fromjson | .bindings[]|.role' {$filename}  2>/dev/null)
+command=$(jq '.[].asset.iamPolicy.policyBlob | fromjson | .bindings[]|.role' ${filename}  2>/dev/null)
 title1="GCP-SVC-CT05"
 title2="태그 템플릿 사용자 역할 부여"
 echo $command
@@ -4098,7 +4098,7 @@ local text=$5
 title1="GCP-SVC-DE05"
 title2="고객 관리 암호화 키 사용"
 
-cmd=$(jq '.[].asset.resourceProperties.encryption|select(.)|fromjson|.defaultKmsKeyName|select(.)' {$filename})
+cmd=$(jq '.[].asset.resourceProperties.encryption|select(.)|fromjson|.defaultKmsKeyName|select(.)' ${filename})
 
 if [[ -n $cmd ]]; then
     check="[양호]"
@@ -4253,7 +4253,7 @@ local check=$3
 local resource=$4
 local text=$5
 
-command=$(jq '.[].asset.iamPolicy.policyBlob |select(.) |fromjson |.bindings[] | select(.role=="roles/container.developer")|.members[]' {$filename})
+command=$(jq '.[].asset.iamPolicy.policyBlob |select(.) |fromjson |.bindings[] | select(.role=="roles/container.developer")|.members[]' ${filename})
 title1="GCP-SVC-DN06"
 title2="서비스 계정 권한 액세스"
 
