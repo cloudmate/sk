@@ -485,7 +485,7 @@ echo $command
             sh err_chk.sh
         fi
 
-    elif [[ -z $TFCHK ]]; then
+    if [[ -z $TFCHK ]]; then
         check="[취약]"
         resource="-"
         text="리소스 없음"
