@@ -196,10 +196,6 @@ if [ $PG = root ]
     sh err_chk.sh
 fi
 
-
-
-fi
-
 }
 
 function AA04(){
