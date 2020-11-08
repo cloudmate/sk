@@ -336,7 +336,9 @@ command=$(jq '.[].asset.resourceProperties.primary |select(.) |fromjson |.state'
 title1="GCP-SEC-AB02"
 title2="TCP 전달을 위한 Cloud IAP 사용"
 
-echo $command
+for RETURNS in $command
+do
+  read TFCHK <<<"${RETURNS}"
   echo -e "TFCHK:    ${TFCHK}"
 
   if [[ -n $TFCHK  ]]; then
