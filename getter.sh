@@ -1,3 +1,5 @@
+#!/bin/bash
+
 tot=0
 fail_cnt=0
 suc_cnt=0
@@ -575,18 +577,19 @@ local text=$5
 title1="GCP-SEC-AD05"
 title2="Cloud EKM 키 관리"
 
+command=$(jq '.[].asset.resourceProperties|select(.protectionLevel=="EKM")' ${filename})
 
-if [[ -n $(jq '.[].asset.resourceProperties|select(.protectionLevel=="EKM")' ${filename}) ]]; then
+if [[ -n $command ]]; then
         check="[양호]"
         text="-"
         echo $title1,$title2,$check
-        echo "Cloud EKM 키 관리 :"`jq .[].asset.resourceProperties|select(.protectionLevel=="EKM")`
+        echo "Cloud EKM 키 관리 :"$command
         echo -n -e "\033[34m[양호]\033[0m"
         tot=$(( $(( ${tot}+1 )) ))
-        #suc_cnt=$(( ${suc_cnt}+1 ))
+        suc_cnt=$(( ${suc_cnt}+1 ))
         echo
 
-    elif [[ -z $(jq '.[].asset.resourceProperties|select(.protectionLevel=="EKM")' ${filename}) ]]; then
+    elif [[ -z $command ]]; then
         check="[취약]"
         text="리소스 없음"
         tot=$(( $(( ${tot}+1 )) ))
@@ -622,14 +625,14 @@ if [[ $(gcloud compute networks subnets list --format="value(NAME)" | wc -l) -gt
         echo $title1,$title2,$check
         echo -n -e "\033[34m[양호]\033[0m"
         tot=$(( $(( ${tot}+1 )) ))
-        #suc_cnt=$(( ${suc_cnt}+1 ))
+        suc_cnt=$(( ${suc_cnt}+1 ))
         echo
 
         echo $title1,$title2,$check
         echo "네트워크 대역 분 :"`gcloud compute networks subnets list --format="csv(NAME,REGION,NETWORK,RANGE)"`
         echo -n -e "\033[34m[양호]\033[0m"
         tot=$(( $(( ${tot}+1 )) ))
-        #suc_cnt=$(( ${suc_cnt}+1 ))
+        suc_cnt=$(( ${suc_cnt}+1 ))
         echo
 
 
@@ -828,7 +831,6 @@ elif [[ -z $command ]]; then
         sh err_chk.sh
 fi
 }
-AE05
 
 
 ###########AE
@@ -1325,103 +1327,105 @@ if [[ -n $command ]]; then
 fi
 }
 
-# function AQ01(){
-#
-# local title1=$1
-# local title2=$2
-# local check=$3
-# local resource=$4
-# local text=$5
-#
-# title1="GCP-SVC-AQ01"
-# title2="사용자 액세스 제어(IAM)"
-# PROJECT=$(gcloud config get-value project)
-#
-# ROLES=("roles/owner" "roles/accessapproval.approver" "roles/accesscontextmanager.gcpAccessAdmin" "roles/accesscontextmanager.policyAdmin"
-#  "roles/apigateway.admin" "roles/apigee.admin" "roles/apigee.developerAdmin" "roles/apigee.synchronizerManager" "roles/apigeeconnect.Admin" "roles/appengine.appAdmin"
-#  "roles/appengine.serviceAdmin" "roles/artifactregistry.admin" "roles/artifactregistry.repoAdmin" "roles/assuredworkloads.admin" "roles/automl.admin" "roles/bigquery.admin"
-#  "roles/bigquery.connectionAdmin" "roles/bigquery.dataOwner" "roles/bigquery.resourceAdmin" "roles/bigtable.admin" "roles/billing.admin" "roles/billing.projectManager"
-#  "roles/binaryauthorization.attestorsAdmin" "roles/binaryauthorization.policyAdmin" "roles/chat.owner" "roles/cloudasset.owner" "roles/datafusion.admin" "roles/cloudfunctions.admin"
-#  "roles/iap.admin" "roles/iap.settingsAdmin" "roles/cloudiot.admin" "roles/cloudjobdiscovery.admin" "roles/cloudkms.admin" "roles/consumerprocurement.entitlementManager"
-#  "roles/consumerprocurement.orderAdmin" "roles/cloudmigration.inframanager" "roles/vmmigration.admin" "roles/cloudprivatecatalogproducer.admin" "roles/cloudprivatecatalogproducer.manager"
-#  "roles/cloudscheduler.admin" "roles/servicebroker.admin" "roles/servicebroker.operator" "roles/cloudsql.admin" "roles/cloudtasks.admin"
-#  "roles/cloudtasks.queueAdmin" "roles/cloudtrace.admin" "roles/cloudtranslate.admin" "roles/workflows.admin" "roles/codelabapikeys.admin" "roles/composer.admin" "roles/composer.environmentAndStorageObjectAdmin"
-#  "roles/compute.admin" "roles/compute.instanceAdmin" "roles/compute.instanceAdmin.v1" "roles/compute.loadBalancerAdmin" "roles/compute.networkAdmin" "roles/compute.orgSecurityPolicyAdmin"
-#  "roles/compute.orgSecurityResourceAdmin" "roles/compute.packetMirroringAdmin" "roles/compute.securityAdmin" "roles/compute.storageAdmin" "roles/compute.xpnAdmin" "roles/osconfig.assignmentAdmin"
-#  "roles/osconfig.osConfigAdmin" "roles/container.admin" "roles/container.clusterAdmin" "roles/containeranalysis.admin" "roles/datacatalog.admin" "roles/datacatalog.categoryAdmin"
-#  "roles/datacatalog.entryGroupOwner" "roles/datacatalog.entryOwner" "roles/dataflow.admin" "roles/datalabeling.admin" "roles/datamigration.admin" "roles/dataproc.admin"
-#  "roles/datastore.importExportAdmin" "roles/datastore.indexAdmin" "roles/datastore.owner" "roles/dialogflow.admin" "roles/dlp.admin" "roles/dns.admin"
-#  "roles/endpoints.portalAdmin" "roles/errorreporting.admin" "roles/eventarc.admin" "roles/firebase.admin" "roles/firebase.analyticsAdmin" "roles/firebase.developAdmin"
-#  "roles/firebase.growthAdmin" "roles/firebase.qualityAdmin" "roles/cloudconfig.admin" "roles/cloudtestservice.testAdmin" "roles/firebaseabt.admin" "roles/firebaseappdistro.admin"
-#  "roles/firebaseauth.admin" "roles/firebasecrashlytics.admin" "roles/firebasedatabase.admin" "roles/firebasedynamiclinks.admin" "roles/firebasehosting.admin" "roles/firebaseinappmessaging.admin"
-#  "roles/firebaseml.admin" "roles/firebasenotifications.admin" "roles/firebaseperformance.admin" "roles/firebasepredictions.admin" "roles/firebaserules.admin" "roles/gameservices.admin"
-#  "roles/genomics.admin" "roles/gkehub.admin" "roles/gkehub.gatewayAdmin" "roles/healthcare.annotationEditor" "roles/healthcare.annotationStoreAdmin" "roles/healthcare.consentArtifactAdmin"
-#  "roles/healthcare.consentStoreAdmin" "roles/healthcare.datasetAdmin" "roles/healthcare.dicomStoreAdmin" "roles/healthcare.fhirStoreAdmin" "roles/healthcare.hl7V2StoreAdmin"
-#  "roles/iam.securityAdmin" "roles/iam.organizationRoleAdmin" "roles/iam.roleAdmin" "roles/iam.serviceAccountAdmin" "roles/iam.serviceAccountKeyAdmin"
-#  "roles/iam.workloadIdentityPoolAdmin" "roles/lifesciences.admin" "roles/logging.admin" "roles/managedidentities.admin" "roles/managedidentities.domainAdmin"
-#  "roles/memcache.admin" "roles/ml.admin" "roles/ml.jobOwner" "roles/ml.modelOwner" "roles/ml.operationOwner" "roles/monitoring.admin" "roles/monitoring.editor"
-#  "roles/networkmanagement.admin" "roles/notebooks.admin" "roles/notebooks.legacyAdmin" "roles/axt.admin" "roles/orgpolicy.policyAdmin" "roles/aiplatform.admin"
-#  "roles/aiplatform.featurestoreAdmin" "roles/dataprocessing.admin" "roles/domains.admin" "roles/essentialcontacts.admin" "roles/firebasecrash.symbolMappingsAdmin"
-#  "roles/identityplatform.admin" "roles/identitytoolkit.admin" "roles/remotebuildexecution.artifactAdmin" "roles/remotebuildexecution.configurationAdmin"
-#  "roles/remotebuildexecution.reservationAdmin" "roles/runtimeconfig.admin" "roles/vmwareengine.vmwareengineAdmin" "roles/netappcloudvolumes.admin"
-#  "roles/redisenterprisecloud.admin" "roles/privateca.admin" "roles/privateca.caManager" "roles/privateca.certificateManager" "roles/proximitybeacon.attachmentEditor"
-#  "roles/pubsub.admin" "roles/pubsublite.admin" "roles/recaptchaenterprise.admin" "roles/automlrecommendations.admin" "roles/recommender.billingAccountCudAdmin"
-#  "roles/recommender.computeAdmin" "roles/recommender.firewallAdmin" "roles/recommender.iamAdmin" "roles/recommender.projectCudAdmin" "roles/redis.admin" "roles/resourcemanager.folderAdmin"
-#  "roles/resourcemanager.folderIamAdmin" "roles/resourcemanager.organizationAdmin" "roles/resourcemanager.projectIamAdmin" "roles/run.admin"
-#  "roles/secretmanager.admin" "roles/securitycenter.admin" "roles/serviceconsumermanagement.tenancyUnitsAdmin" "roles/servicedirectory.admin"
-#  "roles/servicemanagement.admin" "roles/servicemanagement.quotaAdmin" "roles/servicenetworking.networksAdmin" "roles/serviceusage.apiKeysAdmin"
-#  "roles/serviceusage.serviceUsageAdmin" "roles/source.admin" "roles/spanner.admin" "roles/spanner.backupAdmin" "roles/spanner.databaseAdmin"
-#  "roles/spanner.restoreAdmin" "roles/storage.admin" "roles/storage.hmacKeyAdmin" "roles/storage.objectAdmin" "roles/storagetransfer.admin"
-#  "roles/storage.legacyBucketOwner" "roles/storage.legacyObjectOwner" "roles/cloudsupport.admin" "roles/tpu.admin" "roles/transcoder.admin"
-#  "roles/vpcaccess.admin")
-#
-#
-#  for i in ${!ROLES[@]};
-#  do
-#    ROLE=${ROLES[$i]}
-#
-#    FILTER=".bindings[] | select (.role==\"${ROLE}\") | .members[] | select (. | startswith(\"user:\")) | ltrimstr(\"user:\")"
-#    command=$(gcloud projects get-iam-policy ${PROJECT} --format=json | jq "${FILTER}")
-#    echo $command
-#    mapfile -t tot_cnt <<(echo $command | wc -w)
-#    echo "설정된 사용자 수 : "$tot_cnt
-#
-#  if  [[ $tot_cnt == 1 ]]; then
-#    check="[양호]"
-#    text=${ROLE}
-#    echo $title1,$title2,$text,$check
-#    echo -n -e "\033[34m[양호]\033[0m"
-#    tot=$(( $(( ${tot}+1 )) ))
-#    suc_cnt=$(( $(( ${suc_cnt}+1 )) ))
-#    echo $title, $title2, $check
-#    echo
-#
-#  elif [[ $tot_cnt -gt 1 ]]; then
-#    check="[취약]"
-#    resource=${ROLE}
-#    text="관리자 권한이 1명 이상"
-#    tot=$(( $(( ${tot}+1 )) ))
-#    fail_cnt=$(( ${fail_cnt}+1 ))
-#    export title1
-#    export title2
-#    export check
-#    export resource
-#    export text
-#    export tot
-#    export fail_cnt
-#    echo $title, $title2, $check, $text, $resource
-#    echo -n -e "\033[33m[취약]\033[0m"
-#    sh err_chk.sh
-#
-#  elif  [[ $tot_cnt == 0 ]]; then
-#    check="[정보]"
-#    text=${ROLE}
-#    echo $title1,$title2,$text,$check
-#    tot=$(( $(( ${tot}+1 )) ))
-#    echo
-#  fi
-#  done
-#  }
+#!/bin/bash
+function AQ01(){
+
+local title1=$1
+local title2=$2
+local check=$3
+local resource=$4
+local text=$5
+tot_cnt=0
+
+title1="GCP-SVC-AQ01"
+title2="사용자 액세스 제어(IAM)"
+PROJECT=$(gcloud config get-value project)
+
+ROLES=("roles/owner" "roles/accessapproval.approver" "roles/accesscontextmanager.gcpAccessAdmin" "roles/accesscontextmanager.policyAdmin"
+ "roles/apigateway.admin" "roles/apigee.admin" "roles/apigee.developerAdmin" "roles/apigee.synchronizerManager" "roles/apigeeconnect.Admin" "roles/appengine.appAdmin"
+ "roles/appengine.serviceAdmin" "roles/artifactregistry.admin" "roles/artifactregistry.repoAdmin" "roles/assuredworkloads.admin" "roles/automl.admin" "roles/bigquery.admin"
+ "roles/bigquery.connectionAdmin" "roles/bigquery.dataOwner" "roles/bigquery.resourceAdmin" "roles/bigtable.admin" "roles/billing.admin" "roles/billing.projectManager"
+ "roles/binaryauthorization.attestorsAdmin" "roles/binaryauthorization.policyAdmin" "roles/chat.owner" "roles/cloudasset.owner" "roles/datafusion.admin" "roles/cloudfunctions.admin"
+ "roles/iap.admin" "roles/iap.settingsAdmin" "roles/cloudiot.admin" "roles/cloudjobdiscovery.admin" "roles/cloudkms.admin" "roles/consumerprocurement.entitlementManager"
+ "roles/consumerprocurement.orderAdmin" "roles/cloudmigration.inframanager" "roles/vmmigration.admin" "roles/cloudprivatecatalogproducer.admin" "roles/cloudprivatecatalogproducer.manager"
+ "roles/cloudscheduler.admin" "roles/servicebroker.admin" "roles/servicebroker.operator" "roles/cloudsql.admin" "roles/cloudtasks.admin"
+ "roles/cloudtasks.queueAdmin" "roles/cloudtrace.admin" "roles/cloudtranslate.admin" "roles/workflows.admin" "roles/codelabapikeys.admin" "roles/composer.admin" "roles/composer.environmentAndStorageObjectAdmin"
+ "roles/compute.admin" "roles/compute.instanceAdmin" "roles/compute.instanceAdmin.v1" "roles/compute.loadBalancerAdmin" "roles/compute.networkAdmin" "roles/compute.orgSecurityPolicyAdmin"
+ "roles/compute.orgSecurityResourceAdmin" "roles/compute.packetMirroringAdmin" "roles/compute.securityAdmin" "roles/compute.storageAdmin" "roles/compute.xpnAdmin" "roles/osconfig.assignmentAdmin"
+ "roles/osconfig.osConfigAdmin" "roles/container.admin" "roles/container.clusterAdmin" "roles/containeranalysis.admin" "roles/datacatalog.admin" "roles/datacatalog.categoryAdmin"
+ "roles/datacatalog.entryGroupOwner" "roles/datacatalog.entryOwner" "roles/dataflow.admin" "roles/datalabeling.admin" "roles/datamigration.admin" "roles/dataproc.admin"
+ "roles/datastore.importExportAdmin" "roles/datastore.indexAdmin" "roles/datastore.owner" "roles/dialogflow.admin" "roles/dlp.admin" "roles/dns.admin"
+ "roles/endpoints.portalAdmin" "roles/errorreporting.admin" "roles/eventarc.admin" "roles/firebase.admin" "roles/firebase.analyticsAdmin" "roles/firebase.developAdmin"
+ "roles/firebase.growthAdmin" "roles/firebase.qualityAdmin" "roles/cloudconfig.admin" "roles/cloudtestservice.testAdmin" "roles/firebaseabt.admin" "roles/firebaseappdistro.admin"
+ "roles/firebaseauth.admin" "roles/firebasecrashlytics.admin" "roles/firebasedatabase.admin" "roles/firebasedynamiclinks.admin" "roles/firebasehosting.admin" "roles/firebaseinappmessaging.admin"
+ "roles/firebaseml.admin" "roles/firebasenotifications.admin" "roles/firebaseperformance.admin" "roles/firebasepredictions.admin" "roles/firebaserules.admin" "roles/gameservices.admin"
+ "roles/genomics.admin" "roles/gkehub.admin" "roles/gkehub.gatewayAdmin" "roles/healthcare.annotationEditor" "roles/healthcare.annotationStoreAdmin" "roles/healthcare.consentArtifactAdmin"
+ "roles/healthcare.consentStoreAdmin" "roles/healthcare.datasetAdmin" "roles/healthcare.dicomStoreAdmin" "roles/healthcare.fhirStoreAdmin" "roles/healthcare.hl7V2StoreAdmin"
+ "roles/iam.securityAdmin" "roles/iam.organizationRoleAdmin" "roles/iam.roleAdmin" "roles/iam.serviceAccountAdmin" "roles/iam.serviceAccountKeyAdmin"
+ "roles/iam.workloadIdentityPoolAdmin" "roles/lifesciences.admin" "roles/logging.admin" "roles/managedidentities.admin" "roles/managedidentities.domainAdmin"
+ "roles/memcache.admin" "roles/ml.admin" "roles/ml.jobOwner" "roles/ml.modelOwner" "roles/ml.operationOwner" "roles/monitoring.admin" "roles/monitoring.editor"
+ "roles/networkmanagement.admin" "roles/notebooks.admin" "roles/notebooks.legacyAdmin" "roles/axt.admin" "roles/orgpolicy.policyAdmin" "roles/aiplatform.admin"
+ "roles/aiplatform.featurestoreAdmin" "roles/dataprocessing.admin" "roles/domains.admin" "roles/essentialcontacts.admin" "roles/firebasecrash.symbolMappingsAdmin"
+ "roles/identityplatform.admin" "roles/identitytoolkit.admin" "roles/remotebuildexecution.artifactAdmin" "roles/remotebuildexecution.configurationAdmin"
+ "roles/remotebuildexecution.reservationAdmin" "roles/runtimeconfig.admin" "roles/vmwareengine.vmwareengineAdmin" "roles/netappcloudvolumes.admin"
+ "roles/redisenterprisecloud.admin" "roles/privateca.admin" "roles/privateca.caManager" "roles/privateca.certificateManager" "roles/proximitybeacon.attachmentEditor"
+ "roles/pubsub.admin" "roles/pubsublite.admin" "roles/recaptchaenterprise.admin" "roles/automlrecommendations.admin" "roles/recommender.billingAccountCudAdmin"
+ "roles/recommender.computeAdmin" "roles/recommender.firewallAdmin" "roles/recommender.iamAdmin" "roles/recommender.projectCudAdmin" "roles/redis.admin" "roles/resourcemanager.folderAdmin"
+ "roles/resourcemanager.folderIamAdmin" "roles/resourcemanager.organizationAdmin" "roles/resourcemanager.projectIamAdmin" "roles/run.admin"
+ "roles/secretmanager.admin" "roles/securitycenter.admin" "roles/serviceconsumermanagement.tenancyUnitsAdmin" "roles/servicedirectory.admin"
+ "roles/servicemanagement.admin" "roles/servicemanagement.quotaAdmin" "roles/servicenetworking.networksAdmin" "roles/serviceusage.apiKeysAdmin"
+ "roles/serviceusage.serviceUsageAdmin" "roles/source.admin" "roles/spanner.admin" "roles/spanner.backupAdmin" "roles/spanner.databaseAdmin"
+ "roles/spanner.restoreAdmin" "roles/storage.admin" "roles/storage.hmacKeyAdmin" "roles/storage.objectAdmin" "roles/storagetransfer.admin"
+ "roles/storage.legacyBucketOwner" "roles/storage.legacyObjectOwner" "roles/cloudsupport.admin" "roles/tpu.admin" "roles/transcoder.admin"
+ "roles/vpcaccess.admin")
+
+
+ for i in ${!ROLES[@]};
+ do
+   ROLE=${ROLES[$i]}
+   FILTER=".bindings[] | select (.role==\"${ROLE}\") | .members[] | select (. | startswith(\"user:\")) | ltrimstr(\"user:\")"
+   command=$(gcloud projects get-iam-policy ${PROJECT} --format=json | jq "${FILTER}")
+   echo $command
+   tot_cnt=$(echo awk '{$command}' | wc -w)
+   echo $tot_cnt
+
+ if  [[ $tot_cnt == 1 ]]; then
+   check="[양호]"
+   text=${ROLE}
+   echo $title1,$title2,$text,$check
+   echo -n -e "\033[34m[양호]\033[0m"
+   tot=$(( $(( ${tot}+1 )) ))
+   suc_cnt=$(( $(( ${suc_cnt}+1 )) ))
+   echo $title, $title2, $check
+   echo
+
+ elif [[ $tot_cnt -gt 1 ]]; then
+   check="[취약]"
+   resource=${ROLE}
+   text="관리자 권한이 1명 이상"
+   tot=$(( $(( ${tot}+1 )) ))
+   fail_cnt=$(( ${fail_cnt}+1 ))
+   export title1
+   export title2
+   export check
+   export resource
+   export text
+   export tot
+   export fail_cnt
+   echo $title, $title2, $check, $text, $resource
+   echo -n -e "\033[33m[취약]\033[0m"
+   sh err_chk.sh
+
+ elif  [[ $tot_cnt == 0 ]]; then
+   check="[정보]"
+   text=${ROLE}
+   echo $title1,$title2,$text,$check
+   tot=$(( $(( ${tot}+1 )) ))
+   echo
+ fi
+ done
+ }
+
 
 
 function AQ03(){
@@ -1843,6 +1847,7 @@ elif [[ -z $command ]]; then
 fi
 }
 
+
 function AW05(){
 
 local title1=$1
@@ -1970,56 +1975,60 @@ fi
 }
 
 
-# function AZ07(){
-#
-# local title1=$1
-# local title2=$2
-# local check=$3
-# local resource=$4
-# local text=$5
-#
-# title1="GCP-SVC-AZ07"
-# title2="OS 로그인"
-#
-# ROLES=("roles/owner" "roles/compute.osLogin" "roles/compute.osAdminLogin" "roles/admin" "roles/owner" "roles/compute.instanceAdmin")
-# PROJECT=$(gcloud config get-value project)
-#
-# for i in ${!ROLES[@]};
-# do
-#   ROLE=${ROLES[$i]}
-#   FILTER=".bindings[] | select (.role==\"${ROLE}\") | .members[] | select (. | startswith(\"user:\")) | ltrimstr(\"user:\")"
-#   command=$(gcloud projects get-iam-policy ${PROJECT} --format=json | jq "${FILTER}")
-#   mapfile -t tot< <(echo $command | wc -w)
-#   let tot_cnt+=$tot
-# done
-#
-#   if  [[ $tot_cnt > 0 ]]; then
-#     check="[양호]"
-#     echo $title1,$title2,$check
-#     echo -n -e "\033[34m[양호]\033[0m"
-#     tot=$(( $(( ${tot}+1 )) ))
-#     suc_cnt=$(( $(( ${suc_cnt}+1 )) ))
-#     echo $title, $title2, $check
-#     echo
-#
-#   elif [[ -z $command || $command -eq 0 ]]; then
-#     check="[취약]"
-#     resource="-"
-#     text="리소스 없음"
-#     tot=$(( $(( ${tot}+1 )) ))
-#     fail_cnt=$(( ${fail_cnt}+1 ))
-#     export title1
-#     export title2
-#     export check
-#     export resource
-#     export text
-#     export tot
-#     export fail_cnt
-#     echo $title, $title2, $check, $text
-#     echo -n -e "\033[33m[취약]\033[0m"
-#     sh err_chk.sh
-#     fi
-# }
+function AZ07(){
+
+local title1=$1
+local title2=$2
+local check=$3
+local resource=$4
+local text=$5
+tot_cnt=0
+
+title1="GCP-SVC-AZ07"
+title2="OS 로그인"
+
+PROJECT=$(gcloud config get-value project)
+ROLES=("roles/owner" "roles/compute.osLogin" "roles/compute.osAdminLogin" "roles/admin" "roles/owner" "roles/compute.instanceAdmin")
+
+declare -A cnt
+for i in ${!ROLES[@]};
+do
+  ROLE=${ROLES[$i]}
+  FILTER=".bindings[] | select (.role==\"${ROLE}\") | .members[] | select (. | startswith(\"user:\")) | ltrimstr(\"user:\")"
+  command=$(gcloud projects get-iam-policy ${PROJECT} --format=json | jq "${FILTER}")
+  tot_cnt=$(echo awk '{$command}' | wc -w)
+done
+
+if  [[ $tot_cnt > 0 ]]; then
+  check="[양호]"
+  text="-"
+  echo $title1,$title2,$check
+  echo -n -e "\033[34m[양호]\033[0m"
+  tot=$(( $(( ${tot}+1 )) ))
+  suc_cnt=$(( $(( ${suc_cnt}+1 )) ))
+  echo $title, $title2, $check
+  echo
+
+elif [[ -z $command || $command -eq 0 ]]; then
+  check="[취약]"
+  resource="-"
+  text="리소스 없음"
+  tot=$(( $(( ${tot}+1 )) ))
+  fail_cnt=$(( ${fail_cnt}+1 ))
+  export title1
+  export title2
+  export check
+  export resource
+  export text
+  export tot
+  export fail_cnt
+  echo $title, $title2, $check, $text
+  echo -n -e "\033[33m[취약]\033[0m"
+  sh err_chk.sh
+fi
+
+}
+
 
 function AZ09(){
 
@@ -2461,7 +2470,6 @@ function BG06(){
 
 for CLUSTERZONES in $(gcloud beta container clusters list --format="csv[no-heading](name,zone,MASTER_VERSION)")
 do
-# Parse (name,zone) --> $CLUSTER, $LOCATION
 IFS="," read CLUSTER REGION MASTER_VERSION <<<"${CLUSTERZONES}"
 echo -e "Cluster:    ${CLUSTER}"
 echo -e "REGION:   ${REGION}"
@@ -2530,12 +2538,10 @@ for a in ${#i[@]};
 do
     NUMBER=$(echo $i[@] | sed 's/[^0-9]*//g')
     NUMBER=${NUMBER:0:5}
-    echo "넘버 : "$NUMBER
         for master in ${#MASTER_VERSION[@]};
         do
             MASTER=$(echo $MASTER_VERSION[@] | sed 's/[^0-9]*//g')
             MASTER=${MASTER:0:5}
-            echo "마스터 : "$MASTER
             if [[ $MASTER -ge $NUMBER ]];then
               check="[양호]"
               echo $title1,$title2,$check
@@ -4002,47 +4008,47 @@ command=$(gcloud compute regions list --format="value(NAME)")
 done
 }
 
-function CT05(){
+# function CT05(){
 
-local title1=$1
-local title2=$2
-local check=$3
-local resource=$4
-local text=$5
+# local title1=$1
+# local title2=$2
+# local check=$3
+# local resource=$4
+# local text=$5
 
-command=$(jq '.[].asset.iamPolicy.policyBlob | fromjson | .bindings[]|.role' ${filename}  2>/dev/null)
-title1="GCP-SVC-CT05"
-title2="태그 템플릿 사용자 역할 부여"
-echo $command
+# command=$(jq '.[].asset.iamPolicy.policyBlob | fromjson | .bindings[]|.role' ${filename}  2>/dev/null)
+# title1="GCP-SVC-CT05"
+# title2="태그 템플릿 사용자 역할 부여"
+# echo $command
 
-if [ $command | grep "roles/datacatalog.tagTemplateUser" ]; then
-        check="[양호]"
-        resource=$command
-        text="-"
-        echo "템플릿 사용자 : "$command
-        echo $title1,$title2,$check,$resource,$text
-        echo -n -e "\033[34m[양호]\033[0m"
-        tot=$(( $(( ${tot}+1 )) ))
-        suc_cnt=$(( $(( ${suc_cnt}+1 )) ))
-        echo
+# if [[ $command | grep "roles/datacatalog.tagTemplateUser" ]]; then
+#         check="[양호]"
+#         resource=$command
+#         text="-"
+#         echo "템플릿 사용자 : "$command
+#         echo $title1,$title2,$check,$resource,$text
+#         echo -n -e "\033[34m[양호]\033[0m"
+#         tot=$(( $(( ${tot}+1 )) ))
+#         suc_cnt=$(( $(( ${suc_cnt}+1 )) ))
+#         echo
 
-    elif [[ -z $command ]]; then
-        check="[취약]"
-        resource="-"
-        text="리소스 없음"
-        tot=$(( $(( ${tot}+1 )) ))
-        fail_cnt=$(( ${fail_cnt}+1 ))
-        export title1
-        export title2
-        export check
-        export resource
-        export text
-        export tot
-        export fail_cnt
-        echo -n -e "\033[33m[취약]\033[0m"
-        sh err_chk.sh
-fi
-}
+#     elif [[ -z $command ]]; then
+#         check="[취약]"
+#         resource="-"
+#         text="리소스 없음"
+#         tot=$(( $(( ${tot}+1 )) ))
+#         fail_cnt=$(( ${fail_cnt}+1 ))
+#         export title1
+#         export title2
+#         export check
+#         export resource
+#         export text
+#         export tot
+#         export fail_cnt
+#         echo -n -e "\033[33m[취약]\033[0m"
+#         sh err_chk.sh
+# fi
+# }
 
 
 function CU05(){
@@ -4284,13 +4290,12 @@ if [[ -n $command  ]]; then
         sh err_chk.sh
 fi
 }
-
-#'AQ01'
-#'AZ07'
+# 'CT05'
 cmds=('AA01' 'AA02' 'AA03' 'AA04' 'AA05' 'AA06' 'AB02' 'AD01' 'AD02' 'AD04' 'AD05' 'AE01' 'AE02' 'AE03' 'AE04' 'AE05' 'AE06' 'AE07' 'AF01' 'AG01'
-'AH01' 'AI01' 'AJ02' 'AK01' 'AM02' 'AP01' 'AQ03' 'AQ05' 'AW05' 'AX01' 'AZ06' 'AZ09' 'AZ10' 'AZ11' 'AZ12' 'AZ13' 'BC05' 'BD07' 'BE06'
+'AH01' 'AI01' 'AJ02' 'AK01' 'AM02' 'AP01' 'AQ01' 'AQ03' 'AQ05' 'AW05' 'AX01' 'AZ06' 'AZ07' 'AZ09' 'AZ10' 'AZ11' 'AZ12' 'AZ13' 'BC05' 'BD07' 'BE06'
 'BG06' 'BG07' 'BG08' 'BG10' 'BG11' 'BH06' 'BH07' 'BH08' 'BU05' 'BV05' 'BY05' 'BZ05' 'CA05' 'CB06' 'CB07' 'CB09' 'CD05' 'CF06' 'CF07' 'CF08' 'CF09'
-'CI06' 'CL05' 'CP06' 'CR06' 'CT05' 'CU05' 'DE05' 'DE06' 'DM05' 'DN06')
+'CI06' 'CL05' 'CP06' 'CR06' 'CU05' 'DE05' 'DE06' 'DM05' 'DN06')
 for cmd in "${cmds[@]}"; do
     $cmd
+    sh 'AQ01'
 done
